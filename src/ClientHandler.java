@@ -1,6 +1,7 @@
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 public class ClientHandler implements Runnable {
     private Socket socket;
@@ -66,12 +67,23 @@ public class ClientHandler implements Runnable {
                     out.println("USERLIST:" + Server.getUserList());
                 } else if ("SCREEN_IMAGE".equals(command)) {
                     String[] finalTokens = tokens;
-                    if(!Server.getScreenSharing().get(username).isEmpty()){
-                        Server.getScreenSharing().get(username).forEach(user -> {
+//                        if (!Server.getScreenSharing().get(username).isEmpty()) {
+//                            Server.getScreenSharing().get(username).stream().forEach(user -> {
+//                                System.out.println("I-am zis sa dea share la " + user + " " + counter++);
+//                                Server.getClient(user).send("SCREEN_IMAGE:" + finalTokens[1]);
+//                            });
+//                        }
+                    if (!Server.getScreenSharing().get(username).isEmpty()) {
+                        CopyOnWriteArrayList<String> usersToReceiveScreen = new CopyOnWriteArrayList<>(Server.getScreenSharing().get(username));
+
+                        Iterator<String> iterator = usersToReceiveScreen.iterator();
+                        while (iterator.hasNext()) {
+                            String user = iterator.next();
                             System.out.println("I-am zis sa dea share la " + user + " " + counter++);
                             Server.getClient(user).send("SCREEN_IMAGE:" + finalTokens[1]);
-                        });
+                        }
                     }
+
                 } else if ("DISCONNECT".equals(command)) {
                     Server.removeClient(username);
                     socket.close();
@@ -80,16 +92,20 @@ public class ClientHandler implements Runnable {
             }
 
         } catch (Exception e) {
-            Server.getScreenSharing().remove(username);
-            Server.getScreenSharing().forEach((key, value) -> {
-                if (value.contains(username)) {
-                    value.remove(username);
-                    if (value.isEmpty()) {
-                        Server.getClient(key).send("STOP_SCREEN_SHARING:" + username);
+            synchronized (Server.class) {
+                Server.getScreenSharing().remove(username);
+                Server.getScreenSharing().forEach((key, value) -> {
+                    if (value.contains(username)) {
+                        value.remove(username);
+                        if (value.isEmpty()) {
+                            Server.getClient(key).send("STOP_SCREEN_SHARING:" + username);
+                        }
                     }
-                }
-            });
-            Server.removeClient(username);
+                });
+                Server.removeClient(username);
+            }
+
+            e.printStackTrace();
         }
     }
 

@@ -97,6 +97,8 @@ public class Client {
                 // Perform a specific action before closing the window
 
                 out.println("DISCONNECT:" + " ");
+                if (screenSharingTimer.isRunning())
+                    screenSharingTimer.stop();
                 // Close the window
                 e.getWindow().dispose();
             }
