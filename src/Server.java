@@ -22,10 +22,6 @@ public class Server {
         }
     }
 
-    public static void shareScreen(String username) {
-        // ...
-    }
-
     public static void addClient(String username, ClientHandler handler) {
         clients.put(username, handler);
         sendUserListToAll();
@@ -42,10 +38,6 @@ public class Server {
 
     public static String getUserList() {
         return String.join(", ", clients.keySet());
-    }
-
-    public static HashMap<String, ClientHandler> getClients() {
-        return clients;
     }
 
     public static ClientHandler getClient(String username) {

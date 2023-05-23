@@ -8,7 +8,6 @@ import java.awt.event.WindowEvent;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.net.Socket;
-import java.util.ArrayList;
 import java.util.Base64;
 
 public class Client {
@@ -95,7 +94,6 @@ public class Client {
             @Override
             public void windowClosing(WindowEvent e) {
                 // Perform a specific action before closing the window
-
                 out.println("DISCONNECT:" + " ");
                 if (screenSharingTimer.isRunning())
                     screenSharingTimer.stop();
@@ -107,7 +105,6 @@ public class Client {
         frame.setVisible(true);
     }
 
-    //...
     private void processServerMessages() {
         String serverMessage;
 
@@ -161,7 +158,6 @@ public class Client {
                         System.out.println(counter++);
                         byte[] screenImageBytes = ScreenCapture.captureScreen();
                         // Send screenImageBytes to the server
-
                         out.println("SCREEN_IMAGE:" + Base64.getEncoder().encodeToString(screenImageBytes));
                     } catch (AWTException | IOException ex) {
                         ex.printStackTrace();
@@ -190,8 +186,6 @@ public class Client {
             frame.addWindowListener(new WindowAdapter() {
                 @Override
                 public void windowClosing(WindowEvent e) {
-                    // Perform a specific action before closing the window
-                    // aici trebuie sa trimit semnal sa opreasca partajarea ecranului
                     out.println("STOP_SCREEN_SHARING:" + whoSharing);
                     System.out.println(whoSharing);
                     display = null;
@@ -206,7 +200,6 @@ public class Client {
                 byte[] imageBytes = Base64.getDecoder().decode(base64Image);
                 ByteArrayInputStream bais = new ByteArrayInputStream(imageBytes);
                 BufferedImage image = ImageIO.read(bais);
-                //resize image
                 Image scaledImage = image.getScaledInstance(image.getWidth() / 2, image.getHeight() / 2, Image.SCALE_SMOOTH);
                 bais.close();
                 imageLabel.setIcon(new ImageIcon(scaledImage));
@@ -219,7 +212,7 @@ public class Client {
 
         public void main(String[] args) {
             ImageDisplay display = new ImageDisplay();
-            String screenImageBase64 = args[0]; // Pass the base64 image as a command-line argument
+            String screenImageBase64 = args[0];
             display.updateImage(screenImageBase64);
         }
     }

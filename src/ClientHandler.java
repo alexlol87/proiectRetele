@@ -21,7 +21,6 @@ public class ClientHandler implements Runnable {
             String clientMessage;
             String username = null;
             String screenSharingList = "";
-            System.out.println("screen sharing list before while " + screenSharingList);
 
             String[] tokens = null;
             String command = null;
@@ -47,8 +46,6 @@ public class ClientHandler implements Runnable {
                     if (Server.usernameExists(tokens[1])) {
                         Server.getScreenSharing().putIfAbsent(tokens[1], new ArrayList<>());
                         Server.getScreenSharing().get(tokens[1]).add(username);
-
-                        System.out.println("I-am zis sa dea share la " + Server.getScreenSharing().get(tokens[1]));
 
                         Server.getClient(tokens[1]).send("START_SCREEN_SHARING:" + " ");
                     } else {
@@ -79,18 +76,15 @@ public class ClientHandler implements Runnable {
                         Iterator<String> iterator = usersToReceiveScreen.iterator();
                         while (iterator.hasNext()) {
                             String user = iterator.next();
-                            System.out.println("I-am zis sa dea share la " + user + " " + counter++);
                             Server.getClient(user).send("SCREEN_IMAGE:" + finalTokens[1]);
                         }
                     }
-
                 } else if ("DISCONNECT".equals(command)) {
                     Server.removeClient(username);
                     socket.close();
                     break;
                 }
             }
-
         } catch (Exception e) {
             synchronized (Server.class) {
                 Server.getScreenSharing().remove(username);
@@ -104,7 +98,6 @@ public class ClientHandler implements Runnable {
                 });
                 Server.removeClient(username);
             }
-
             e.printStackTrace();
         }
     }
